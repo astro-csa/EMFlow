@@ -1,4 +1,4 @@
-# # EMFlow (provisional name)
+# EMFlow (provisional name)
 
 **EMFlow** is a Python-based automation tool designed to streamline the simulation workflow using the [EMsoft](https://github.com/EMsoft-org/EMsoft) electron microscopy software suite. It focuses on simplifying the generation of `.nml` configuration files, managing multiple simulation stages, and minimizing manual intervention.
 
