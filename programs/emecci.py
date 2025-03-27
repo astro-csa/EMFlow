@@ -1,5 +1,5 @@
 from base import EMSoftProgram
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
 class EMECCIParameters:
@@ -13,6 +13,7 @@ class EMECCIParameters:
 
         header: str = "Bethelist"
         filename: str = "BetheParameters.nml"
+        no_quote_fields: list[str] = field(default_factory=lambda:[])
 
     @dataclass
     class NML:
@@ -39,6 +40,7 @@ class EMECCIParameters:
 
         header: str = "ECCIlist"
         filename: str = "EMECCI.nml"
+        no_quote_fields: list[str] = field(default_factory=lambda:["k", "lauec", "lauec2"])
 
     #defect_path: str
     #foil_path: str

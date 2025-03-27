@@ -1,5 +1,5 @@
 from base import EMSoftProgram
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
 class EMECPParameters:
@@ -11,6 +11,7 @@ class EMECPParameters:
         angles: str
 
         filename: str = "euler.txt"
+        no_quote_fields: list[str] = field(default_factory=lambda:["angles"])
     
     @dataclass
     class NML:
@@ -45,7 +46,7 @@ class EMECPParameters:
 
         header: str = "ECPlist"
         filename: str = "EMECP.nml"
-        no_quote_fields: list[str] = ["fn_f", "fn_s", "gF", "gS", "tF", "tS"]
+        no_quote_fields: list[str] = field(default_factory=lambda:["fn_f", "fn_s", "gF", "gS", "tF", "tS"])
     
     euler: EULER
     nml: NML

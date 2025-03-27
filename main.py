@@ -62,7 +62,7 @@ def main():
             maskpattern = 'n',
             energyfile = 'EMECP/EMECPmaster.h5',
             masterfile = 'EMECP/EMECPmaster.h5',
-            anglefile = 'EMECP/Euler.txt',
+            anglefile = 'EMECP/euler.txt',
             eulerconvention = 'hkl',
             gammavalue = 1.0,
             outputformat = 'bin',
@@ -92,7 +92,7 @@ def main():
         )
     )
 
-    EMECCIParameters(
+    EMECCIParams = EMECCIParameters(
         nml = EMECCIParameters.NML(
             nthreads = 12,
             voltage = 15.,
@@ -137,7 +137,7 @@ def main():
     EMECPProgram.generate_config()
     EMECPProgram.run()
 
-    EMECCIProgram = EMECCI(config=EMECCIParameters)
+    EMECCIProgram = EMECCI(config=EMECCIParams)
     EMECCIProgram.copy_output_file(EMECPProgram)
     EMECCIProgram.generate_config()
     EMECCIProgram.run()

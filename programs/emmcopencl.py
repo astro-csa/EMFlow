@@ -1,5 +1,5 @@
 from base import EMSoftProgram
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
 class EMMCOpenCLParameters:
@@ -36,6 +36,7 @@ class EMMCOpenCLParameters:
 
         header: str = "MCCLdata"
         filename: str = "EMMCOpenCL.nml"
+        no_quote_fields: list[str] = field(default_factory=lambda:[])
 
     nml: NML
 

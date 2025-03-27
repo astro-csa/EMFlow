@@ -52,6 +52,7 @@ class EMSoftProgram:
     def _generate_config_file(self, section: object) -> str:
         header = getattr(section, "header", None)
         filename = getattr(section, "filename", None)
+        no_quote_fields = getattr(section, "no_quote_fields", [])
 
         if not filename:
             return
@@ -62,18 +63,21 @@ class EMSoftProgram:
             lines = [f"&{header}"]
         else:
             lines = []
+
+        if filename.lower() == "euler.txt":
+            for key, value in data.items():
+                if key in ["header", "filename", "no_quote_fields"]:
+                    continue
+                lines.append(f"{value}")
+
+        else:
+            for key, value in data.items():
+                if key in ["header", "filename", "no_quote_fields"]:
+                    continue
+                formatted = self._format_value(key, value, no_quote_fields)
+                lines.append(f" {key} = {formatted},")
+            lines.append("/")
         
-        for key, value in data.items():
-            if key in ["header", "filename"]:
-                continue
-            if isinstance(value, str):
-                lines.append(f" {key} = '{value}',")
-            elif isinstance(value, bool):
-                val_str = ".TRUE." if value else ".FALSE."
-                lines.append(f" {key} = {val_str},")
-            else:
-                lines.append(f" {key} = {value},")
-        lines.append("/")
         output_dir = Path(self.name)
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / filename
@@ -90,3 +94,16 @@ class EMSoftProgram:
                     return Path(self.name) / filename
         # Fallback: simplemente asume nombre estándar
         return Path(self.name) / f"{self.name}.nml"
+
+    def _format_value(self, key, value, no_quote_fields):
+        if isinstance(value, str):
+            if key in no_quote_fields:
+                return value
+            else:
+                return f"'{value}'"
+        elif isinstance(value, bool):
+            return ".TRUE." if value else ".FALSE."
+        else: 
+            return str(value)
+
+

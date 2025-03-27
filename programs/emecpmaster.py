@@ -1,5 +1,5 @@
 from base import EMSoftProgram
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
 class EMECPmasterParameters:
@@ -13,6 +13,7 @@ class EMECPmasterParameters:
 
         header: str = "Bethelist"
         filename: str = "BetheParameters.nml"
+        no_quote_fields: list[str] = field(default_factory=lambda:[])
 
     @dataclass
     class NML:
@@ -26,6 +27,7 @@ class EMECPmasterParameters:
 
         header: str = "ECPmastervars"
         filename: str = "EMECPmaster.nml"
+        no_quote_fields: list[str] = field(default_factory=lambda:[])
     
     bethe: BETHE
     nml: NML
