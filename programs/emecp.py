@@ -1,3 +1,4 @@
+from base import EMSoftProgram
 from dataclasses import dataclass
 
 @dataclass
@@ -7,9 +8,7 @@ class EMECPParameters:
     class EULER:
         type: str
         num: int
-        anglex: float
-        angley: float
-        anglez: float
+        angles: str
 
         filename: str = "euler.txt"
     
@@ -46,6 +45,14 @@ class EMECPParameters:
 
         header: str = "ECPlist"
         filename: str = "EMECP.nml"
+        no_quote_fields: list[str] = ["fn_f", "fn_s", "gF", "gS", "tF", "tS"]
     
     euler: EULER
     nml: NML
+
+class EMECP(EMSoftProgram):
+    def __init__(self, config: EMECPParameters):
+        super().__init__(
+            name="EMECP",
+            config=config,
+        )

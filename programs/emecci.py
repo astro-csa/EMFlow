@@ -1,3 +1,4 @@
+from base import EMSoftProgram
 from dataclasses import dataclass
 
 @dataclass
@@ -39,7 +40,14 @@ class EMECCIParameters:
         header: str = "ECCIlist"
         filename: str = "EMECCI.nml"
 
-    defect_path: str
-    foil_path: str
+    #defect_path: str
+    #foil_path: str
     bethe: BETHE
     nml: NML
+
+class EMECCI(EMSoftProgram):
+    def __init__(self, config: EMECCIParameters):
+        super().__init__(
+            name="EMECCI",
+            config=config,
+        )
