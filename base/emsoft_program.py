@@ -4,11 +4,24 @@ from dataclasses import asdict, is_dataclass
 from pathlib import Path
 
 class EMSoftProgram:
+    """
+    Abstract base class for all EMSoft program wrappers.
+
+    Subclasses should implement or inherit the following methods:
+    - generate_config(): Generate all necessary .nml/.json files for the program.
+    - run(): Optionally execute the program with the generated configuration.
+
+    This class provides shared logic for all EMFlow program wrappers.
+    """
     def __init__(self, name: str, config: object):
         self.name = name
         self.config = config
 
     def generate_config(self):
+        """
+        Generate the configuration files needed to run the EMSoft program.
+        This method should be called after setting all required parameters.
+        """
         for attr_name in self.config.__dataclass_fields__:
             attr = getattr(self.config, attr_name)
             if is_dataclass(attr):

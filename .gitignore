@@ -1,3 +1,19 @@
+# Entorno virtual
+.venv/
+
+# Archivos compilados
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Archivos de entorno
+.env
+*.log
+
+# Archivos de sistema/IDE
+.DS_Store
+.vscode/
+
 EMECCI
 EMECPmaster
 EMECP
