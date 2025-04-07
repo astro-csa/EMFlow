@@ -1,6 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QPushButton
 from gui.forms.program_form import ProgramForm
-from utils.loader import get_programs
+from utils.get_programs import get_programs
+
+# This import is only to ensure that all programs and parameters are imported so PyInstaller can bundle them properly
+import simulations.simulation_registry
 
 class AllProgramsForm(QWidget):
     def __init__(self):
@@ -25,12 +28,12 @@ class AllProgramsForm(QWidget):
 
         self.setLayout(layout)
 
+    # Deprecated
     def generate_all_configs(self):
         for name, form in self.program_forms.items():
             try:
                 config = form.get_config()
                 program_instance = form.program_class(config=config)
                 program_instance.generate_config()
-                print(f"[OK] Generated config for {name}")
             except Exception as e:
                 print(f"[ERROR] Failed to generate config for {name}: {e}")

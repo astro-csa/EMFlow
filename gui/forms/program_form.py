@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QPushButton
 from dataclasses import is_dataclass, fields  
 from gui.forms.dataclass_form import DataclassForm
 
@@ -28,9 +28,22 @@ class ProgramForm(QWidget):
 
 
         layout.addWidget(self.tabs)
+
+        self.generate_button = QPushButton("Generate Config")
+        self.generate_button.clicked.connect(self.generate_config)
+        layout.addWidget(self.generate_button)
+
         self.setLayout(layout)
 
-    def get_config(self):
+    def generate_config(self):
+        try:
+            config = self._get_config()
+            program = self.program_class(config=config)
+            program.generate_config()
+        except Exception as e:
+            print(f"[ERROR] Failed to generate config: {e}")
+
+    def _get_config(self):
         """Devuelve un nuevo objeto de configuración con los valores del formulario."""
         updated_config_data = {}
 
