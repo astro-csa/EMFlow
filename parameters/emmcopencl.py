@@ -5,20 +5,25 @@ class EMMCOpenCLParameters:
 
     @dataclass
     class NML:
-        mode: str = "bse1"
+        mode: str = field(default="bse1", metadata={"widget": "combo", "options": ["bse1", "full", "Ivol"], "visibility_controller": True})
+        
         xtalname: str = "GaN.xtal"
         numsx: int = 501
-        sig: float = 70.0
-        omega: float = 0.0
-        sigstart: float = 0.0
-        sigend: float = 30.0
-        sigstep: float = 2.0
-        ivolx: int = 1001
-        ivoly: int = 1001
-        ivolz: int = 101
-        ivolstepx: float = 1.0
-        ivolstepy: float = 1.0
-        ivolstepz: float = 1.0
+        
+        sig: float = field(default=70.0, metadata={"visible_if": "full", "depends_on": "mode"})
+        omega: float = field(default=0.0, metadata={"visible_if": "full", "depends_on": "mode"})
+        
+        sigstart: float = field(default=0.0, metadata={"visible_if": "bse1", "depends_on": "mode"})
+        sigend: float = field(default=30.0, metadata={"visible_if": "bse1", "depends_on": "mode"})
+        sigstep: float = field(default=2.0, metadata={"visible_if": "bse1", "depends_on": "mode"})
+        
+        ivolx: int = field(default=1001, metadata={"visible_if": "Ivol", "depends_on": "mode"})
+        ivoly: int = field(default=1001, metadata={"visible_if": "Ivol", "depends_on": "mode"})
+        ivolz: int = field(default=101, metadata={"visible_if": "Ivol", "depends_on": "mode"})
+        ivolstepx: float = field(default=1.0, metadata={"visible_if": "Ivol", "depends_on": "mode"})
+        ivolstepy: float = field(default=1.0, metadata={"visible_if": "Ivol", "depends_on": "mode"})
+        ivolstepz: float = field(default=1.0, metadata={"visible_if": "Ivol", "depends_on": "mode"})
+        
         num_el: int = 10
         platid: int = 1
         devid: int = 1
