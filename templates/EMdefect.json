@@ -1,7 +1,7 @@
  {
      "DefectDescriptors": {
          "foil": {
-             "foilfilename": "GaN/EMECCI/_default/EMfoil.json"
+             "foilfilename": "EMECCI/EMfoil.json"
          },
          "Ydislocations": [
                  {

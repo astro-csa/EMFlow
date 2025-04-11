@@ -47,6 +47,10 @@ class ProgramForm(QWidget):
         try:
             config = self._get_config()
             program = self.program_class(config=config)
+            print(f"program.copy_input: {program.copy_input}")
+            if program.copy_input:
+                print("program.copy_input: True")
+                program.copy_output_file(program.copy_input)
             program.run()
         except Exception as e:
             print(f"[ERROR]")
