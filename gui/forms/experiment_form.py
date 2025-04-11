@@ -25,6 +25,11 @@ class ExperimentForm(QWidget):
             program_layout.addWidget(group)
 
         main_layout.addLayout(program_layout)
+
+        self.run_button = QPushButton("Run Simulation")
+        self.run_button.clicked.connect(self.run_simulation)
+        main_layout.addWidget(self.run_button)
+
         self.setLayout(main_layout)
 
     def get_configs(self):
@@ -32,6 +37,13 @@ class ExperimentForm(QWidget):
             form.program_class.name: form.get_config()
             for form in self.program_forms
         }
+    
+    def run_simulation(self):
+        for form in self.program_forms:
+            try:
+                form.run_program()
+            except Exception as e:
+                print(f"[ERROR] Failed to run {form.program_class.name}: {e}")
     
     def _generate_config(self, form: ProgramForm):
         try:

@@ -43,6 +43,14 @@ class ProgramForm(QWidget):
         except Exception as e:
             print(f"[ERROR] Failed to generate config: {e}")
 
+    def run_program(self):
+        try:
+            config = self._get_config()
+            program = self.program_class(config=config)
+            program.run()
+        except Exception as e:
+            print(f"[ERROR]")
+
     def _get_config(self):
         """Devuelve un nuevo objeto de configuración con los valores del formulario."""
         updated_config_data = {}
