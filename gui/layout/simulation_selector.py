@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QWidget, QListWidget, QStackedWidget, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QTextEdit, QListWidget, QStackedWidget, QPushButton, QHBoxLayout
 from gui.forms.experiment_form import ExperimentForm
 from simulations.simulation_registry import SIMULATIONS
 
 class SimulationSelector(QWidget):
-    def __init__(self):
+    def __init__(self, console):
         super().__init__()
 
         self.list_widget = QListWidget()
@@ -11,6 +11,10 @@ class SimulationSelector(QWidget):
 
         self.list_widget.setMaximumWidth(150)
         self.list_widget.setMinimumWidth(100)
+
+        self.console = console
+
+        self.console.setMinimumWidth(400)
 
         for name in SIMULATIONS.keys():
             self.list_widget.addItem(name)
@@ -24,5 +28,6 @@ class SimulationSelector(QWidget):
         layout = QHBoxLayout()
         layout.addWidget(self.list_widget)
         layout.addWidget(self.stacked_widget)
+        layout.addWidget(self.console)
 
         self.setLayout(layout)

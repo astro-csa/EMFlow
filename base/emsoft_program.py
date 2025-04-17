@@ -51,16 +51,34 @@ class EMSoftProgram:
 
         print(f"[{self.name}] ▶️ Running: {executable} {main_config_path.name}")
 
-        result = subprocess.run(
+        # Use subprocess.Popen with unbuffered output
+        process = subprocess.Popen(
             [executable, main_config_path.name],
-            cwd=main_config_path.parent
+            cwd=main_config_path.parent,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,        # Decode bytes to strings
+            bufsize=1         # Enable line-buffered output
         )
 
-        if result.returncode == 0:
+        # Read stdout and stderr line by line
+        while True:
+            output = process.stdout.readline()
+            if output == "" and process.poll() is not None:
+                break
+            if output:
+                print(f"[{self.name}] [STDOUT]: {output.strip()}")
+
+        # Handle any remaining stderr
+        error_output = process.stderr.read()
+        if error_output:
+            print(f"[{self.name}] [STDERR]: {error_output.strip()}")
+
+        # Check return code
+        if process.returncode == 0:
             print(f"[{self.name}] ✅ Execution completed.")
         else:
-            print(f"[{self.name}] ❌ Execution failed with code {result.returncode}")
-
+            print(f"[{self.name}] ❌ Execution failed with code {process.returncode}")
 
     def _generate_config_file(self, section: object) -> str:
         header = getattr(section, "header", None)

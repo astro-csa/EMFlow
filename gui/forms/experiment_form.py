@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QGroupBox
+from PyQt5.QtCore import QThreadPool
 from base.experiment import Experiment
 from gui.forms.program_form import ProgramForm
+from gui.utils.tasks import SimulationTask
 
 class ExperimentForm(QWidget):
     def __init__(self, experiment: Experiment):
@@ -39,11 +41,8 @@ class ExperimentForm(QWidget):
         }
     
     def run_simulation(self):
-        for form in self.program_forms:
-            try:
-                form.run_program()
-            except Exception as e:
-                print(f"[ERROR] Failed to run {form.program_class.name}: {e}")
+        task = SimulationTask(self.experiment)
+        QThreadPool.globalInstance().start(task)
     
     def _generate_config(self, form: ProgramForm):
         try:

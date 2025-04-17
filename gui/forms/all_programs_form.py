@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QPushButton
 from gui.forms.program_form import ProgramForm
-from utils.get_programs import get_programs
+from gui.utils.get_programs import get_programs
 
 # This import is only to ensure that all programs and parameters are imported so PyInstaller can bundle them properly
 import simulations.simulation_registry

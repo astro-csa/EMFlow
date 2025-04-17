@@ -1,7 +1,4 @@
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QLineEdit, QPushButton,
-    QFormLayout, QVBoxLayout, QMessageBox, QComboBox, QCheckBox
-)
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QLineEdit, QComboBox, QCheckBox
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from dataclasses import fields, is_dataclass
 
@@ -9,7 +6,7 @@ class DataclassForm(QWidget):
     def __init__(self, dataclass_type):
         super().__init__()
 
-        assert is_dataclass(dataclass_type), "Must be a dataclass type"
+        assert is_dataclass(dataclass_type)
 
         self.dataclass_type = dataclass_type
         self.instance = dataclass_type()
