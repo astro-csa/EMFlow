@@ -40,8 +40,22 @@ class EMECCIParameters:
         header: str = field(default="ECCIlist", init=False)
         filename: str = field(default="EMECCI.nml", init=False)
         no_quote_fields: tuple[str, ...] = field(default_factory=lambda:["k", "lauec", "lauec2"], init=False)
+    
+    @dataclass
+    class FOIL:
+        foil_path: str = "EMECCI/EMfoil.json"
 
-    #defect_path: str
-    #foil_path: str
+        #filename: str = field(default="EMfoil.json", init=False)
+        no_quote_fields: tuple[str, ...] = field(default_factory=lambda:[], init=False)
+
+    @dataclass
+    class DEFECT:
+        defect_path: str = "EMECCI/EMdefect.json"
+
+        #filename: str = field(default="EMdefect.json", init=False)
+        no_quote_fields: tuple[str, ...] = field(default_factory=lambda:[], init=False)
+
     bethe: BETHE = field(default_factory=BETHE)
     nml: NML = field(default_factory=NML)
+    foil: FOIL = field(default_factory=FOIL)
+    defect: DEFECT = field(default_factory=DEFECT)

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QGroupBox
 from PyQt5.QtCore import QThreadPool
 from base.experiment import Experiment
-from gui.forms.program_form import ProgramForm
+from gui.forms.base.program_form import ProgramForm
 from gui.utils.tasks import SimulationTask
 
 class ExperimentForm(QWidget):

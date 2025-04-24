@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QPushButton
-from gui.forms.dataclass_form import DataclassForm
+from gui.forms.base.dataclass_form import DataclassForm
 from dataclasses import is_dataclass, fields
+from gui.forms.programs.emecci_foil_form import FoilForm
 
 class ProgramForm(QWidget):
     def __init__(self, config_class, program_class):
@@ -20,7 +21,11 @@ class ProgramForm(QWidget):
             field_name = field_.name 
             field_type = field_.type
 
-            if is_dataclass(field_type):
+            if field_name.upper() == "FOIL":
+                form = FoilForm()
+                self.tabs.addTab(form, field_name.upper())
+
+            elif is_dataclass(field_type):
                 form = DataclassForm(field_type)
                 self.form_widgets[field_name] = form
                 self.tabs.addTab(form, field_name.upper())

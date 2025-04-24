@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QTextEdit, QListWidget, QStackedWidget, QPushButton, QHBoxLayout
-from gui.forms.experiment_form import ExperimentForm
+from gui.forms.base.experiment_form import ExperimentForm
 from simulations.simulation_registry import SIMULATIONS
 
 class SimulationSelector(QWidget):
