@@ -1,16 +1,10 @@
 import sys
-import json
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QCheckBox, QVBoxLayout,
-    QLineEdit, QPushButton, QFileDialog, QMessageBox, QFormLayout
-)
+import os
+import shutil
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QStackedWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QCheckBox, QVBoxLayout, QLineEdit, QPushButton, QFileDialog, QMessageBox, QFormLayout, QStackedWidget
 
 from gui.utils.forms import create_vector_input
-import shutil
-import os
-import re
 
 class FoilForm(QWidget):
     def __init__(self):

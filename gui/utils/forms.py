@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QLabel, QHBoxLayout, QLineEdit
+from typing import List
 
 def create_vector_input(label_text, size=3):
     layout = QHBoxLayout()
@@ -13,3 +14,14 @@ def create_vector_input(label_text, size=3):
         inputs.append(input_box)
 
     return layout, inputs
+
+def get_vector_string(vector_inputs: List[QLineEdit]):
+    values = []
+    for box in vector_inputs:
+        text = box.text().strip()
+        if text:
+            values.append(text)
+        else:
+            values.append("0.0")
+        
+    return ", ".join(values)
