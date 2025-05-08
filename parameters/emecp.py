@@ -7,7 +7,7 @@ class EMECPParameters:
     class EULER:
         type: str = "eu"
         num: int = 1
-        angles: str = "0,0,0"
+        angles: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
 
         filename: str = field(default="euler.txt", init=False)
         no_quote_fields: tuple[str, ...] = field(default_factory=lambda:["angles"], init=False)
@@ -31,13 +31,13 @@ class EMECPParameters:
         workingdistance: float = 13.0
         Rin: float = 2.0
         Rout: float = 6.0
-        fn_f: str = "0,0,1"
-        fn_s: str = "0,0,1"
+        fn_f: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 1.0"})
+        fn_s: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 1.0"})
         xtalname2: str = "undefined"
-        gF: str = "0,0,0"
-        gS: str = "0,0,0"
-        tF: str = "0,0,0"
-        tS: str = "0,0,0"
+        gF: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
+        gS: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
+        tF: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
+        tS: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
         dmin: float = 0.025
         filmthickness: float = 0.0
         filmfile: str = "undefined"

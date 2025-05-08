@@ -1,11 +1,13 @@
+from dataclasses import is_dataclass, fields
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QPushButton
 from gui.forms.base.dataclass_form import DataclassForm
-from dataclasses import is_dataclass, fields
 from gui.forms.programs.emecci_foil_form import FoilForm
 from gui.forms.programs.emecci_defect_form import DefectForm
+from base.emsoft_program import EMSoftProgram
+from typing import Type
 
 class ProgramForm(QWidget):
-    def __init__(self, config_class, program_class):
+    def __init__(self, config_class, program_class: Type[EMSoftProgram]):
         super().__init__()
 
         self.config_class = config_class

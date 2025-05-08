@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QLineEdit, QComboBox, QCheckBox
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from dataclasses import fields, is_dataclass
+from gui.utils.vectors import get_vector_string, create_vector_boxes
 
 class DataclassForm(QWidget):
     def __init__(self, dataclass_type):
@@ -11,6 +12,7 @@ class DataclassForm(QWidget):
         self.dataclass_type = dataclass_type
         self.instance = dataclass_type()
         self.inputs = {}
+        self.vector_inputs = {}
 
         layout = QVBoxLayout()
         form_layout = QFormLayout()
@@ -18,6 +20,7 @@ class DataclassForm(QWidget):
         for f in fields(dataclass_type):
             if not f.init:
                 continue
+
             default_value = getattr(self.instance, f.name)
             widget = self._build_widget(f, default_value)
             if f.metadata.get("visibility_controller"):
@@ -43,7 +46,13 @@ class DataclassForm(QWidget):
                 continue
 
             widget = self.inputs[f.name]
-            if isinstance(widget, QLineEdit):
+            widget_type = f.metadata.get("widget")
+
+            if widget_type == "vector":
+                vector_inputs = self.vector_inputs.get(f.name, [])
+                kwargs[f.name] = get_vector_string(vector_inputs)
+
+            elif isinstance(widget, QLineEdit):
                 text = widget.text()
                 if f.type == int:
                     kwargs[f.name] = int(text)
@@ -56,6 +65,7 @@ class DataclassForm(QWidget):
             elif isinstance(widget, QComboBox):
                 kwargs[f.name] = widget.currentText()
         return self.dataclass_type(**kwargs)
+
     
     def _build_widget(self, f, default_value):
         widget_type = f.metadata.get("widget")
@@ -64,21 +74,39 @@ class DataclassForm(QWidget):
             widget = QComboBox()
             options = f.metadata.get("options", [])
             widget.addItems(options)
-        
+            if str(default_value) in options:
+                widget.setCurrentText(str(default_value))
+            else:
+                widget.setCurrentIndex(0)
+
+
+        elif widget_type == "vector":
+            size = f.metadata.get("size", 3)
+            default_value = f.metadata.get("default_value", None)
+            layout, vector_inputs = create_vector_boxes(size, default_value)
+            container = QWidget()
+            container.setLayout(layout)
+            self.vector_inputs[f.name] = vector_inputs
+            return container
+
         elif f.type == int:
             widget = QLineEdit()
             widget.setValidator(QIntValidator())
             widget.setText(str(default_value))
+
         elif f.type == float:
             widget = QLineEdit()
             widget.setValidator(QDoubleValidator())
             widget.setText(str(default_value))
+
         elif f.type == bool:
             widget = QCheckBox()
             widget.setChecked(default_value)
+
         else:
             widget = QLineEdit()
             widget.setText(str(default_value))
+
         return widget
     
     def _update_visibility(self):

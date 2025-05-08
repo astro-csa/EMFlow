@@ -1,5 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QLineEdit, QComboBox, QScrollArea, QLabel, QPushButton
-from gui.utils.forms import create_vector_input, get_vector_string
+import os
+import shutil
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QLineEdit, QComboBox, QScrollArea, QLabel, QPushButton, QFileDialog, QMessageBox
+from gui.utils.vectors import create_vector_input, get_vector_string
+
 
 class DefectType:
     def __init__(self, name, parameters):
@@ -41,6 +44,9 @@ class DefectForm(QWidget):
         self.main_layout = QVBoxLayout()
         self.defects_by_type = {}
 
+        self.select_file_button = QPushButton("Select Defect File")
+        self.select_file_button.clicked.connect(self.select_existing_file)
+        self.main_layout.addWidget(self.select_file_button)
         # Defect table
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
@@ -73,14 +79,13 @@ class DefectForm(QWidget):
 
         self.main_layout.addLayout(selector_layout)
 
-        # Form container(Form, button, spacer)
+        # Form container(Form, button)
         self.form_container = QWidget()
         self.param_form = QFormLayout()
         self.form_container.setLayout(self.param_form)
         self.main_layout.addWidget(self.form_container)
 
         self.combo_box.currentIndexChanged.connect(self.update_form)
-
         self.setLayout(self.main_layout)
 
         self.update_form()
@@ -92,23 +97,16 @@ class DefectForm(QWidget):
         except Exception as e:
             print(f"[WARNING] Failed to remove previous defect form_container: {e}")
 
-        # Form
         self.form_container = QWidget()
         self.param_form = QFormLayout()
         self.form_container.setLayout(self.param_form)
         self.main_layout.addWidget(self.form_container)
 
         self.inputs = {}
-
         selected_name = self.combo_box.currentText()
 
-        defect_type = None
-        for defect in DEFECT_TYPES:
-            if defect.name == selected_name:
-                defect_type = defect
-                break
-
-        if defect_type is None:
+        defect_type = next((d for d in DEFECT_TYPES if d.name == selected_name), None)
+        if not defect_type:
             return
 
         for param_name, param_type in defect_type.parameters:
@@ -119,23 +117,22 @@ class DefectForm(QWidget):
                 input_widget = QLineEdit()
                 self.param_form.addRow(param_name + ":", input_widget)
             self.inputs[param_name] = input_widget
-        
-        # Button
+
         self.add_defect_button = QPushButton("Add defect.")
-        self.add_defect_button.pressed.connect(self.add_defect)
+        self.add_defect_button.clicked.connect(self.add_defect)
         self.param_form.addWidget(self.add_defect_button)
-        
+
+        self.generate_button = QPushButton("Generate JSON")
+        self.generate_button.clicked.connect(self.generate_json)
+        self.param_form.addWidget(self.generate_button)
+
+
     def add_defect(self):
         defect_type_name = self.combo_box.currentText()
         parameters = {}
 
-        defect_type = None
-        for defect in DEFECT_TYPES:
-            if defect.name == defect_type_name:
-                defect_type = defect
-                break
-
-        if defect_type is None:
+        defect_type = next((d for d in DEFECT_TYPES if d.name == defect_type_name), None)
+        if not defect_type:
             return
 
         for param_name, param_type in defect_type.parameters:
@@ -146,28 +143,25 @@ class DefectForm(QWidget):
             else:
                 text = input_widget.text().strip()
                 value = text if text else "0.0"
-            
+
             parameters[param_name] = value
 
         self.defects_by_type.setdefault(defect_type_name, []).append(parameters)
         self.update_table()
-    
+
     def update_table(self):
-       # Delete the whole layout
+        # Clear layout
         while self.defect_list_layout.count():
             child = self.defect_list_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
-        # If there are not defects
         if not any(self.defects_by_type.values()):
             label = QLabel("No defects added.")
             label.setStyleSheet("color: gray; font-style: italic;")
             self.defect_list_layout.addWidget(label)
             return
 
-
-        # Draw
         for defect_type, defects_list in self.defects_by_type.items():
             title = QLabel(defect_type)
             title.setStyleSheet("font-weight: bold; font-size: 14px; margin-top: 10px;")
@@ -178,18 +172,12 @@ class DefectForm(QWidget):
                 row_layout = QHBoxLayout(row_container)
 
                 for key, value in defect.items():
-                    label = QLabel(f"{key}: {value}")
-                    row_layout.addWidget(label)
+                    row_layout.addWidget(QLabel(f"{key}: {value}"))
 
-                # Botón Edit
-                edit_button = QPushButton("Edit")
-                edit_button.clicked.connect(lambda _, t=defect_type, i=index: self.edit_defect(t, i))
-
-                # Botón Delete
                 delete_button = QPushButton("Delete")
-                delete_button.clicked.connect(lambda _, t=defect_type, i=index: self.delete_defect(t, i))
-
-                row_layout.addWidget(edit_button)
+                delete_button.clicked.connect(
+                    lambda _, t=defect_type, i=index: self.delete_defect(t, i)
+                )
                 row_layout.addWidget(delete_button)
 
                 self.defect_list_layout.addWidget(row_container)
@@ -197,81 +185,53 @@ class DefectForm(QWidget):
     def delete_defect(self, defect_type, index):
         try:
             del self.defects_by_type[defect_type][index]
-
             if not self.defects_by_type[defect_type]:
                 del self.defects_by_type[defect_type]
-
             self.update_table()
-
         except Exception as e:
             print(f"[ERROR] Couldn't delete defect: {e}")
-
-    def edit_defect(self, defect_type, index):
-        self.editing_type = defect_type
-        self.editing_index = index
-
-        defect_data = self.defects_by_type[defect_type][index]
-
-        # Cargar datos en los widgets
-        for param_name, widget in self.inputs.items():
-            value = defect_data.get(param_name, "")
-            if isinstance(widget, QLineEdit):
-                widget.setText(value)
-            elif isinstance(widget, list):  # vector
-                parts = value.split(",")
-                for i, part in enumerate(parts):
-                    if i < len(widget):
-                        widget[i].setText(part.strip())
-
-        # Cambiar el botón a "Update defect"
-        self.add_defect_button.setText("Update defect")
-
-        # Desconectar lo que estuviera conectado antes
-        try:
-            self.add_defect_button.clicked.disconnect(self.add_defect)
-        except TypeError:
-            pass
+    
+    def select_existing_file(self):
+        path, _ = QFileDialog.getOpenFileName(self, "Select Defect JSON", "", "JSON Files (*.json)")
 
         try:
-            self.add_defect_button.clicked.disconnect(self.update_defect)
-        except TypeError:
-            pass
+            target_dir = os.path.join(os.getcwd(), "EMECCI")
+            shutil.copy(path, os.path.join(target_dir, "EMdefect.json"))
+            QMessageBox.information(self, "Success", "Defect file copied successfully.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Could not copy file:\n{e}")
+        return
 
-        # Conectar sólo a update_defect
-        self.add_defect_button.clicked.connect(self.update_defect)
+    def generate_json(self):
+        path = "EMECCI/EMdefect.json"  # Ruta fija como acordamos
+        lines = []
+        lines.append("{")
+        lines.append('    "DefectDescriptors": {')
+        lines.append('        "foil": {')
+        lines.append('            "foilfilename": "EMECCI/EMfoil.json"')
+        lines.append("        },")
 
+        total_types = len(self.defects_by_type)
+        for t_index, (defect_type, defects_list) in enumerate(self.defects_by_type.items()):
+            lines.append(f'        "{defect_type}": [')
+            for d_index, defect in enumerate(defects_list):
+                lines.append("            {")
+                keys = list(defect.items())
+                for i, (key, val) in enumerate(keys):
+                    comma = "," if i < len(keys) - 1 else ""
+                    if "," in val:
+                        lines.append(f'                "{key}": [ {val} ]{comma}')
+                    else:
+                        lines.append(f'                "{key}": {val}{comma}')
+                lines.append("            }" + ("," if d_index < len(defects_list) - 1 else ""))
+            lines.append("        ]" + ("," if t_index < total_types - 1 else ""))
 
-    def update_defect(self):
-        defect_type = self.editing_type
-        index = self.editing_index
-        updated_params = {}
-
-        for param_name, widget in self.inputs.items():
-            if isinstance(widget, QLineEdit):
-                updated_params[param_name] = widget.text()
-            elif isinstance(widget, list):
-                updated_params[param_name] = get_vector_string(widget)
-
-        self.defects_by_type[defect_type][index] = updated_params
-
-        # Restaurar el botón
-        self.add_defect_button.setText("Add defect")
+        lines.append("    }")
+        lines.append("}")
 
         try:
-            self.add_defect_button.clicked.disconnect(self.update_defect)
-        except TypeError:
-            pass
-
-        try:
-            self.add_defect_button.clicked.disconnect(self.add_defect)
-        except TypeError:
-            pass
-
-        self.add_defect_button.clicked.connect(self.add_defect)
-
-        self.editing_type = None
-        self.editing_index = None
-
-        self.update_table()
-
-
+            with open(path, "w") as f:
+                f.write("\n".join(lines))
+            print(f"[INFO] JSON file saved to: {path}")
+        except Exception as e:
+            print(f"[ERROR] Failed to save JSON file: {e}")

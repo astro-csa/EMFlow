@@ -3,6 +3,8 @@ from PyQt5.QtCore import QThreadPool
 from base.experiment import Experiment
 from gui.forms.base.program_form import ProgramForm
 from gui.utils.tasks import SimulationTask
+from typing import Type
+from base.emsoft_program import EMSoftProgram
 
 class ExperimentForm(QWidget):
     def __init__(self, experiment: Experiment):
@@ -33,22 +35,8 @@ class ExperimentForm(QWidget):
         main_layout.addWidget(self.run_button)
 
         self.setLayout(main_layout)
-
-    def get_configs(self):
-        return {
-            form.program_class.name: form.get_config()
-            for form in self.program_forms
-        }
     
     def run_simulation(self):
         task = SimulationTask(self.experiment)
         QThreadPool.globalInstance().start(task)
-    
-    def _generate_config(self, form: ProgramForm):
-        try:
-            config = form.get_config
-            program = form.program_class(config=config)
-            program.generate_config()
-            print(f"[SUCCESS] Config generated for {form.program_class.name}")
-        except Exception as e:
-            print(f"[ERROR] Failed to generate config: {e}")
+

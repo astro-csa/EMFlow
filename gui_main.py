@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication, QMainWindow
 from gui.utils.console_redirector import EmittingStream
 from gui.widgets.console_widget import ConsoleWidget
-
 from gui.layout.simulation_selector import SimulationSelector
 from simulations.simulation_registry import SIMULATIONS
 
@@ -30,8 +29,8 @@ if __name__ == "__main__":
     stream = EmittingStream()
     stream.text_written.connect(console_widget.append)
 
-    #sys.stdout = stream
-    #sys.stderr = stream
+    sys.stdout = stream
+    sys.stderr = stream
 
     window = EMFlow(console_widget)
     window.showMaximized()

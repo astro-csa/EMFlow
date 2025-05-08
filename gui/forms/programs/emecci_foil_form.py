@@ -2,9 +2,9 @@ import sys
 import os
 import shutil
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QCheckBox, QVBoxLayout, QLineEdit, QPushButton, QFileDialog, QMessageBox, QFormLayout, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QCheckBox, QVBoxLayout, QLineEdit, QPushButton, QFileDialog, QMessageBox, QFormLayout, QStackedWidget, QSpacerItem, QSizePolicy
 
-from gui.utils.forms import create_vector_input
+from gui.utils.vectors import create_vector_input
 
 class FoilForm(QWidget):
     def __init__(self):
@@ -55,8 +55,11 @@ class FoilForm(QWidget):
         self.select_file_button.clicked.connect(self.select_existing_file)
         self.copy_file_button = QPushButton("Copy json file")
         self.copy_file_button.clicked.connect(self.copy_json)
+        spacer = QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
         selector_layout.addWidget(self.select_file_button)
         selector_layout.addWidget(self.copy_file_button)
+        selector_layout.addItem(spacer)
+
 
         self.stack.addWidget(self.foil_form_widget)
         self.stack.addWidget(self.file_selector_widget)

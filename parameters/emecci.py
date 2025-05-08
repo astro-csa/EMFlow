@@ -21,11 +21,11 @@ class EMECCIParameters:
         xtalname: str = "GaN.xtal"
         progmode: str = "array"
         summode: str = "diag"
-        k: str = "0,0,1"
+        k: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0, 0, 1"})
         dkt: float = 1.5
         ktmax: float = 3.0
-        lauec: str = "0.0, 0.0"
-        lauec2: str = "0.0, 0.0"
+        lauec: str = field(default="", metadata={"widget": "vector", "size": 2, "default_value": "0.0, 0.0"})
+        lauec2: str = field(default="", metadata={"widget": "vector", "size": 2, "default_value": "0.0, 0.0"})
         nktstep: int = 20
         dmin: float = 0.5
         defectfilename: str = "EMECCI/EMdefect.json"
