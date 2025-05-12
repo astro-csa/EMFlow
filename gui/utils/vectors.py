@@ -3,7 +3,7 @@ from typing import List
 
 def create_vector_boxes(size, default_value=None):
     if not default_value:
-        default_value = ", ".join(["0.0"] * size)
+        default_value = ",".join(["0.0"] * size)
 
     layout = QHBoxLayout()
     layout.setContentsMargins(0, 0, 0, 0)
@@ -43,4 +43,4 @@ def get_vector_string(vector_inputs: List[QLineEdit]):
         else:
             values.append("0.0")
         
-    return ", ".join(values)
+    return ",".join(values)

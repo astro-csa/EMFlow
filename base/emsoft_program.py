@@ -16,6 +16,8 @@ class EMSoftProgram:
     def __init__(self, name: str, config: object):
         self.name = name
         self.config = config
+        self.copy_output_from = None
+        self.update_input_name = False
 
     def generate_config(self):
         """

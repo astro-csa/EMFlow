@@ -1,13 +1,22 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QLineEdit, QComboBox, QCheckBox
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
-from dataclasses import fields, is_dataclass
+from dataclasses import Field, MISSING, fields, is_dataclass
 from gui.utils.vectors import get_vector_string, create_vector_boxes
 
 class DataclassForm(QWidget):
+    """
+    Parameter class structure:
+
+    @dataclass
+    class ProgramParameters:
+        @dataclass
+        class FileParameters
+
+        
+    Creates the form for a "FileParameters" dataclass.
+    """
     def __init__(self, dataclass_type):
         super().__init__()
-
-        assert is_dataclass(dataclass_type)
 
         self.dataclass_type = dataclass_type
         self.instance = dataclass_type()
@@ -18,13 +27,23 @@ class DataclassForm(QWidget):
         form_layout = QFormLayout()
 
         for f in fields(dataclass_type):
+            # Skip not init fields
             if not f.init:
                 continue
+            
+            # Get the default value
+            if f.default is not MISSING:
+                default_value = f.default
+            elif f.default_factory is not MISSING:
+                default_value = f.default_factory()
+            else:
+                default_value = None
 
-            default_value = getattr(self.instance, f.name)
+            # Build widget
             widget = self._build_widget(f, default_value)
             if f.metadata.get("visibility_controller"):
                 if f.metadata.get("widget") == "combo":
+                    widget: QComboBox
                     widget.currentTextChanged.connect(self._update_visibility)
 
             form_layout.addRow(f.name, widget)
@@ -67,7 +86,7 @@ class DataclassForm(QWidget):
         return self.dataclass_type(**kwargs)
 
     
-    def _build_widget(self, f, default_value):
+    def _build_widget(self, f: Field, default_value) -> QWidget:
         widget_type = f.metadata.get("widget")
 
         if widget_type == "combo":
@@ -78,7 +97,6 @@ class DataclassForm(QWidget):
                 widget.setCurrentText(str(default_value))
             else:
                 widget.setCurrentIndex(0)
-
 
         elif widget_type == "vector":
             size = f.metadata.get("size", 3)
@@ -109,6 +127,7 @@ class DataclassForm(QWidget):
 
         return widget
     
+    
     def _update_visibility(self):
         layout = self.layout()
         if not isinstance(layout, QVBoxLayout):
@@ -124,7 +143,7 @@ class DataclassForm(QWidget):
 
             if depends_on and expected:
                 controller = self.inputs.get(depends_on)
-                target_widget = self.inputs.get(f.name)
+                target_widget: QWidget = self.inputs.get(f.name)
 
                 if not isinstance(controller, QComboBox) or not target_widget:
                     continue

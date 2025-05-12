@@ -9,6 +9,6 @@ class EMECP(EMSoftProgram):
     
     def __init__(self, config: config_class):
         super().__init__(name=self.name, config=config)
-        self.copy_input = EMECPmaster
+        self.copy_output_from = EMECPmaster
 
     

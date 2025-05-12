@@ -3,15 +3,15 @@ from PyQt5.QtCore import QThreadPool
 from base.experiment import Experiment
 from gui.forms.base.program_form import ProgramForm
 from gui.utils.tasks import SimulationTask
-from typing import Type
-from base.emsoft_program import EMSoftProgram
+from typing import List
+
 
 class ExperimentForm(QWidget):
     def __init__(self, experiment: Experiment):
         super().__init__()
 
         self.experiment = experiment
-        self.program_forms = []  # List of ProgramForm instances
+        self.program_forms: List[ProgramForm] = []
 
         main_layout = QVBoxLayout()
         program_layout = QHBoxLayout()
@@ -37,6 +37,7 @@ class ExperimentForm(QWidget):
         self.setLayout(main_layout)
     
     def run_simulation(self):
-        task = SimulationTask(self.experiment)
+        task = SimulationTask(self.program_forms)
         QThreadPool.globalInstance().start(task)
+
 

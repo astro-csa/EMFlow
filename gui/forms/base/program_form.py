@@ -7,6 +7,17 @@ from base.emsoft_program import EMSoftProgram
 from typing import Type
 
 class ProgramForm(QWidget):
+    """
+    Parameter class structure:
+
+    @dataclass
+    class ProgramParameters:
+        @dataclass
+        class FileParameters
+
+        
+    Creates the form for a "ProgramParameters" dataclass.
+    """
     def __init__(self, config_class, program_class: Type[EMSoftProgram]):
         super().__init__()
 
@@ -46,6 +57,7 @@ class ProgramForm(QWidget):
 
         self.setLayout(layout)
 
+
     def generate_config(self):
         try:
             config = self._get_config()
@@ -54,22 +66,28 @@ class ProgramForm(QWidget):
         except Exception as e:
             print(f"[ERROR] Failed to generate config: {e}")
 
+
     def run_program(self):
         try:
             config = self._get_config()
             program = self.program_class(config=config)
-            print(f"program.copy_input: {program.copy_input}")
-            if program.copy_input:
-                print("program.copy_input: True")
-                program.copy_output_file(program.copy_input)
+            if program.update_input_name:
+                program.copy_output_file(program.copy_output_from, program.name)
+            elif program.copy_output_from:
+                program.copy_output_file(program.copy_output_from)
             program.run()
         except Exception as e:
-            print(f"[ERROR]")
+            print(f"[ERROR] Error while running program.")
+
 
     def _get_config(self):
         updated_config_data = {}
 
         for key, form in self.form_widgets.items():
-            updated_config_data[key] = form.get_instance()
+            if isinstance(form, DataclassForm):
+                form: DataclassForm
+                updated_config_data[key] = form.get_instance()
+            else:
+                pass
 
         return self.config_class(**updated_config_data)

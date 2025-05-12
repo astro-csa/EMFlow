@@ -31,13 +31,13 @@ class EMECPParameters:
         workingdistance: float = 13.0
         Rin: float = 2.0
         Rout: float = 6.0
-        fn_f: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 1.0"})
-        fn_s: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 1.0"})
+        fn_f: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0, 0, 1"})
+        fn_s: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0, 0, 1"})
         xtalname2: str = "undefined"
-        gF: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
-        gS: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
-        tF: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
-        tS: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0.0, 0.0, 0.0"})
+        gF: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0, 0, 0"})
+        gS: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0, 0, 0"})
+        tF: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0, 0, 0"})
+        tS: str = field(default="", metadata={"widget": "vector", "size": 3, "default_value": "0, 0, 0"})
         dmin: float = 0.025
         filmthickness: float = 0.0
         filmfile: str = "undefined"

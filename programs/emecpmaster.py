@@ -8,5 +8,5 @@ class EMECPmaster(EMSoftProgram):
     
     def __init__(self, config: config_class):
         super().__init__(name=self.name, config=config)
-        self.copy_input = EMMCOpenCL
+        self.copy_output_from = EMMCOpenCL
         self.update_input_name = True
