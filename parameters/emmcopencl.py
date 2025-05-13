@@ -35,7 +35,7 @@ class EMMCOpenCLParameters:
         Ebinsize: float = 1.0
         depthmax: float = 100.0
         depthstep: float = 1.0
-        dataname: str = "EMMCOpenCL/EMMCOpenCL.h5"
+        dataname: str = field(default="EMFlow/temp/EMMCOpenCL/EMMCOpenCL.h5", init=False)
         Notify: str = "Off"
 
         header: str = field(default="MCCLdata", init=False)

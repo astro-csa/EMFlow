@@ -53,11 +53,8 @@ class FoilForm(QWidget):
 
         self.select_file_button = QPushButton("Select Foil File")
         self.select_file_button.clicked.connect(self.select_existing_file)
-        self.copy_file_button = QPushButton("Copy json file")
-        self.copy_file_button.clicked.connect(self.copy_json)
         spacer = QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
         selector_layout.addWidget(self.select_file_button)
-        selector_layout.addWidget(self.copy_file_button)
         selector_layout.addItem(spacer)
 
 
@@ -78,10 +75,16 @@ class FoilForm(QWidget):
             self.stack.setCurrentIndex(0)
 
     def select_existing_file(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Select Foil JSON", "", "JSON Files (*.json)")
-        if path:
-            self.existing_foil_path = path
-            QMessageBox.information(self, "File Selected", f"Foil file selected:\n{path}")
+        path, _ = QFileDialog.getOpenFileName(self, "Select foil JSON", "", "JSON Files (*.json)")
+
+        try:
+            from gui.utils.config_context import ConfigContext
+            target_dir = ConfigContext.get_data_path() / "EMFlow" / "temp" / "EMECCI"
+            shutil.copy(path, os.path.join(target_dir, "EMfoil.json"))
+            QMessageBox.information(self, "Success", "Foil file copied successfully.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Could not copy file:\n{e}")
+        return
 
     def generate_json(self):
         try:
@@ -131,19 +134,6 @@ class FoilForm(QWidget):
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo generar el JSON:\n{e}")
-    
-    def copy_json(self):
-        if not self.existing_foil_path:
-                QMessageBox.warning(self, "Error", "No foil file selected.")
-                return
-
-        try:
-            target_dir = os.path.join(os.getcwd(), "EMECCI")
-            shutil.copy(self.existing_foil_path, os.path.join(target_dir, "EMfoil.json"))
-            QMessageBox.information(self, "Success", "Foil file copied successfully.")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Could not copy file:\n{e}")
-        return
 
 
 if __name__ == "__main__":

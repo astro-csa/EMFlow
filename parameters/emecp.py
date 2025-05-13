@@ -18,13 +18,13 @@ class EMECPParameters:
         npix: int = 256
         thetac: float = 5.0
         maskpattern: str = "n"
-        energyfile: str = "EMECP/EMECPmaster.h5"
-        masterfile: str = "EMECP/EMECPmaster.h5"
-        anglefile: str = "EMECP/euler.txt"
+        energyfile: str = field(default="EMFlow/temp/EMECP/EMECPmaster.h5", init=False)
+        masterfile: str = field(default="EMFlow/temp/EMECP/EMECPmaster.h5", init=False)
+        anglefile: str = field(default="EMFlow/temp/EMECP/euler.txt", init=False)
         eulerconvention: str = "hkl"
         gammavalue: float = 1.0
         outputformat: str = "bin"
-        datafile: str = "EMECP/EMECP.h5"
+        datafile: str = field(default="EMFlow/temp/EMECP/EMECP.h5", init=False)
         tiff_prefix: str = "undefined"
         nthreads: int = 12
         sampletilt: float = 0.0

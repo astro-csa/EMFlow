@@ -1,7 +1,7 @@
  {
      "DefectDescriptors": {
          "foil": {
-             "foilfilename": "EMECCI/EMfoil.json"
+             "foilfilename": "EMFlow/temp/EMECCI/EMfoil.json"
          },
          "Ydislocations": [
                  {

@@ -19,7 +19,7 @@ class EMECPmasterParameters:
         npx: int = 500
         dmin: float = 0.5
         copyfromenergyfile: str = "undefined"
-        energyfile: str = "EMECPmaster/EMECPmaster.h5"
+        energyfile: str = field(default="EMFlow/temp/EMECPmaster/EMECPmaster.h5", init=False)
         combinesites: bool = False
         Notify: str = "Off"
         nthreads: int = 12

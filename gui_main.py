@@ -3,12 +3,16 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication, QMainWindow
 from gui.utils.console_redirector import EmittingStream
 from gui.widgets.console_widget import ConsoleWidget
 from gui.layout.simulation_selector import SimulationSelector
+from gui.utils.config_context import ConfigContext
+from gui.utils.config_manager import get_data_path
 from simulations.simulation_registry import SIMULATIONS
 
 class EMFlow(QMainWindow):
     def __init__(self, console_widget):
         super().__init__()
         self.setWindowTitle("EMFlow - Configuration Generator")
+
+        ConfigContext.set_data_path(get_data_path())
 
         self.main_layout = QVBoxLayout()
 

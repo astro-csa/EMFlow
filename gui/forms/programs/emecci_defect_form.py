@@ -195,7 +195,8 @@ class DefectForm(QWidget):
         path, _ = QFileDialog.getOpenFileName(self, "Select Defect JSON", "", "JSON Files (*.json)")
 
         try:
-            target_dir = os.path.join(os.getcwd(), "EMECCI")
+            from gui.utils.config_context import ConfigContext
+            target_dir = ConfigContext.get_data_path() / "EMFlow" / "temp" / "EMECCI"
             shutil.copy(path, os.path.join(target_dir, "EMdefect.json"))
             QMessageBox.information(self, "Success", "Defect file copied successfully.")
         except Exception as e:
@@ -203,12 +204,13 @@ class DefectForm(QWidget):
         return
 
     def generate_json(self):
-        path = "EMECCI/EMdefect.json"  # Ruta fija como acordamos
+        from gui.utils.config_context import ConfigContext
+        path = ConfigContext.get_data_path() / "EMFlow/temp/EMECCI/EMdefect.json"
         lines = []
         lines.append("{")
         lines.append('    "DefectDescriptors": {')
         lines.append('        "foil": {')
-        lines.append('            "foilfilename": "EMECCI/EMfoil.json"')
+        lines.append('            "foilfilename": "EMFlow/temp/EMECCI/EMfoil.json"')
         lines.append("        },")
 
         total_types = len(self.defects_by_type)

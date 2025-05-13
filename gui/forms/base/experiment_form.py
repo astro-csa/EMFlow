@@ -4,6 +4,9 @@ from base.experiment import Experiment
 from gui.forms.base.program_form import ProgramForm
 from gui.utils.tasks import SimulationTask
 from typing import List
+from datetime import datetime
+from gui.utils.config_context import ConfigContext
+import shutil
 
 
 class ExperimentForm(QWidget):
@@ -37,6 +40,9 @@ class ExperimentForm(QWidget):
         self.setLayout(main_layout)
     
     def run_simulation(self):
+        now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        ConfigContext.set_execution_timestamp(now)
+
         task = SimulationTask(self.program_forms)
         QThreadPool.globalInstance().start(task)
 

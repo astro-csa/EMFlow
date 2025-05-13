@@ -1,4 +1,4 @@
-# Entorno virtual
+# Virtual environment
 .venv/
 
 # Archivos compilados
@@ -14,13 +14,14 @@ __pycache__/
 .DS_Store
 .vscode/
 
-#Generated folders
+# Generated folders
+EMFlow/
 EMECCI/
 EMECPmaster/
 EMECP/
 EMMCOpenCL/
 
-#pyinstaller
+# pyinstaller
 *.spec
 build/
 dist/

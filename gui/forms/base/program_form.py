@@ -77,7 +77,7 @@ class ProgramForm(QWidget):
                 program.copy_output_file(program.copy_output_from)
             program.run()
         except Exception as e:
-            print(f"[ERROR] Error while running program.")
+            print(f"[ERROR] Error while running program: {e}")
 
 
     def _get_config(self):

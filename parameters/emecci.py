@@ -28,10 +28,10 @@ class EMECCIParameters:
         lauec2: str = field(default="", metadata={"widget": "vector", "size": 2, "default_value": "0.0, 0.0"})
         nktstep: int = 20
         dmin: float = 0.5
-        defectfilename: str = "EMECCI/EMdefect.json"
-        dataname: str = "EMECCI/EMECCI.h5"
-        ECPname: str = "EMECCI/EMECP.h5"
-        montagename: str = "EMECCI/EMECCI.tiff"
+        defectfilename: str = field(default="EMFlow/temp/EMECCI/EMdefect.json", init=False)
+        dataname: str = field(default="EMFlow/temp/EMECCI/EMECCI.h5", init=False)
+        ECPname: str = field(default="EMFlow/temp/EMECCI/EMECP.h5", init=False)
+        montagename: str = field(default="EMFlow/temp/EMECCI/EMECCI.tiff", init=False)
         DF_L: float = 1.0
         DF_npix: int = 256
         DF_npiy: int = 256
@@ -43,14 +43,14 @@ class EMECCIParameters:
     
     @dataclass
     class FOIL:
-        foil_path: str = "EMECCI/EMfoil.json"
+        foil_path: str = "EMFlow/temp/EMECCI/EMfoil.json"
 
         #filename: str = field(default="EMfoil.json", init=False)
         no_quote_fields: tuple[str, ...] = field(default_factory=lambda:[], init=False)
 
     @dataclass
     class DEFECT:
-        defect_path: str = "EMECCI/EMdefect.json"
+        defect_path: str = "EMFlow/temp/EMECCI/EMdefect.json"
 
         #filename: str = field(default="EMdefect.json", init=False)
         no_quote_fields: tuple[str, ...] = field(default_factory=lambda:[], init=False)
