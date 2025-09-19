@@ -1,5 +1,10 @@
+from __future__ import annotations
+
+from typing import Optional
+
 from ui.forms.common.experiment_form import ExperimentForm
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QListWidget, QStackedWidget, QVBoxLayout, QWidget
+from emsoft.common.emsoft_experiment import EMSoftExperiment
 from emsoft.simulations.simulation_registry import SIMULATIONS
 
 
@@ -55,21 +60,30 @@ class SimulationSelector(QWidget):
         self.console.setMinimumWidth(450)  # Minimum width of the console
         self.console.setMaximumWidth(850)  # Maximum width of the console
 
+        self._experiments: list[EMSoftExperiment] = []
+        self._experiment_forms: list[ExperimentForm] = []
+
         # Populate the list widget with the names of the available simulations
-        for name in SIMULATIONS.keys():
+        for name, experiment in SIMULATIONS.items():
             self.list_widget.addItem(name)  # Add each simulation name to the list widget
 
-        # Create and add experiment forms to the stacked widget for each simulation
-        for experiment in SIMULATIONS.values():
             # Create an `ExperimentForm` for each experiment
             form = ExperimentForm(experiment)
             # Add the form to the stacked widget
             self.stacked_widget.addWidget(form)
 
+            self._experiments.append(experiment)
+            self._experiment_forms.append(form)
+
         # Connect the `currentRowChanged` signal of the list widget to the `setCurrentIndex` slot
         # of the stacked widget. This ensures that the stacked widget switches to the correct
         # experiment form when the user selects a different experiment in the list.
         self.list_widget.currentRowChanged.connect(self.stacked_widget.setCurrentIndex)
+
+        if self._experiments:
+            # Default to the first experiment so the UI has an active selection
+            self.list_widget.setCurrentRow(0)
+            self.stacked_widget.setCurrentIndex(0)
 
         # Create a horizontal layout to organize the widgets
         layout = QHBoxLayout()
@@ -79,3 +93,19 @@ class SimulationSelector(QWidget):
 
         # Set the layout for the `SimulationSelector` widget
         self.setLayout(layout)
+
+    def current_experiment(self) -> Optional[EMSoftExperiment]:
+        """Return the experiment associated with the current selection, if any."""
+
+        index = self.list_widget.currentRow()
+        if index < 0 or index >= len(self._experiments):
+            return None
+        return self._experiments[index]
+
+    def current_experiment_form(self) -> Optional[ExperimentForm]:
+        """Return the experiment form widget associated with the current selection, if any."""
+
+        index = self.list_widget.currentRow()
+        if index < 0 or index >= len(self._experiment_forms):
+            return None
+        return self._experiment_forms[index]

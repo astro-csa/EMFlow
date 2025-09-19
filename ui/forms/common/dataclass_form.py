@@ -119,6 +119,65 @@ class DataclassForm(QWidget):
         # Create and return a new instance of the dataclass with updated values
         return self.dataclass_type(**kwargs)
 
+    def set_instance(self, instance) -> None:
+        """Update widgets to mirror the values of an existing dataclass instance."""
+
+        if isinstance(instance, dict):
+            instance = self.dataclass_type(**instance)
+        elif not isinstance(instance, self.dataclass_type):
+            raise TypeError("Instance type does not match dataclass form")
+
+        self.instance = instance
+
+        for f in fields(self.dataclass_type):
+            if not f.init:
+                continue
+
+            value = getattr(instance, f.name, None)
+            widget = self.inputs.get(f.name)
+            if widget is None:
+                continue
+
+            widget_type = f.metadata.get("widget")
+
+            if widget_type == "vector":
+                vector_inputs = self.vector_inputs.get(f.name, [])
+                components = self._coerce_vector_value(value, len(vector_inputs))
+                for idx, line_edit in enumerate(vector_inputs):
+                    line_edit.setText(components[idx] if idx < len(components) else "")
+                continue
+
+            if isinstance(widget, QLineEdit):
+                widget.setText("" if value is None else str(value))
+            elif isinstance(widget, QCheckBox):
+                widget.setChecked(bool(value))
+            elif isinstance(widget, QComboBox):
+                if value is None:
+                    continue
+                index = widget.findText(str(value))
+                if index >= 0:
+                    widget.setCurrentIndex(index)
+
+        self._update_visibility()
+
+    @staticmethod
+    def _coerce_vector_value(value, size: int) -> list[str]:
+        """Normalise stored vector data to a list of string components."""
+
+        if value is None:
+            return []
+
+        if isinstance(value, str):
+            components = [component.strip() for component in value.split(",")]
+        elif isinstance(value, (list, tuple)):
+            components = [str(component) for component in value]
+        else:
+            components = [str(value)]
+
+        if len(components) > size:
+            return components[:size]
+        return components
+
     """
     def select_existing_file(self, program_name):
         path, _ = QFileDialog.getOpenFileName(self, "Select file", "", "(*.nml)")

@@ -79,4 +79,4 @@ else
   echo "[WARN] requirements.txt not found"
 fi
 
-exec python3 src/emsoft_gui/gui_main.py "$@"
+exec python3 main.py "$@"

@@ -1,156 +1,141 @@
-from dataclasses import fields, is_dataclass
+from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import fields, is_dataclass
+from typing import Optional
+
+from PyQt5.QtWidgets import QPushButton, QTabWidget, QVBoxLayout, QWidget
+
+from emsoft.common.emsoft_config import EMSoftConfig
+from emsoft.common.emsoft_program import EMSoftProgram
 from ui.forms.common.dataclass_form import DataclassForm
 from ui.forms.programs.emecci_defect_form import DefectForm
 from ui.forms.programs.emecci_foil_form import FoilForm
-from PyQt5.QtWidgets import QPushButton, QTabWidget, QVBoxLayout, QWidget
-
-from emsoft.common.emsoft_program import EMSoftProgram
 
 
 class ProgramForm(QWidget):
     """
-    A GUI widget for handling the configuration and execution of a program's parameters.
+    A GUI widget for configuring and executing an EMsoft program.
 
-    This class dynamically generates input forms for the parameters of a given program, based on the structure
-    of its associated dataclass. It supports different types of nested dataclass structures, as well as custom
-    forms for special parameter types (e.g., "FOIL" and "DEFECT").
+    The form dynamically reflects the structure of the program's configuration dataclass.
+    Each nested dataclass becomes its own tab, while specialised sections such as FOIL or
+    DEFECT rely on dedicated editor widgets. The generate button can be reused in different
+    contexts by supplying a custom callback and label.
 
     Attributes:
-        - config_class: The dataclass that defines the program's parameters.
-        - program_class (type[EMSoftProgram]): The class representing the specific program to be configured.
-        - form_widgets (dict): A dictionary that maps parameter names to their corresponding input forms.
-        - tabs (QTabWidget): A tabbed widget to organize parameter input forms for various sections of the program.
-        - generate_button (QPushButton): A button to trigger the generation of the program's configuration file.
+        config_class: Dataclass describing the program configuration.
+        program_class: Program type associated with the form.
+        form_widgets (dict[str, QWidget]): Mapping of field names to their editor widgets.
+        tabs (QTabWidget): Container holding the generated editors.
+        generate_button (QPushButton): Trigger whose behaviour can be overridden via callback.
     """
 
-    def __init__(self, config_class, program_class: type[EMSoftProgram]):
-        """
-        Initializes the `ProgramForm` widget.
-
-        Args:
-            config_class: The dataclass that defines the structure and default values for the program's parameters.
-            program_class (type[EMSoftProgram]): The class representing the program to be configured.
-        """
+    def __init__(
+        self,
+        config_class: type[EMSoftConfig],
+        program_class: type[EMSoftProgram],
+        on_generate: Optional[Callable[[ProgramForm], None]] = None,
+        *,
+        generate_label: str = "Generate Config",
+    ) -> None:
+        """Build a form for `program_class` using `config_class` metadata."""
         super().__init__()
 
-        self.config_class = config_class  # Store the configuration dataclass
-        self.program_class = program_class  # Store the program class
-        self.form_widgets = {}  # Initialize an empty dictionary to store parameter input forms
+        self.config_class = config_class
+        self.program_class = program_class
+        # Optional callback lets containers override the generate button behaviour
+        self._on_generate = on_generate
+        self.form_widgets: dict[str, QWidget] = {}
 
-        # Create the main layout for the widget
         layout = QVBoxLayout()
-
-        # Create a tabbed widget to organize parameter input forms for different sections
         self.tabs = QTabWidget()
 
-        # Iterate through the fields of the configuration dataclass
         for field_ in fields(config_class):
             if not field_.init:
-                # Skip fields that are not initialized (e.g., fields with `init=False`)
                 continue
 
-            field_name = field_.name  # Name of the field
-            field_type = field_.type  # Type of the field
+            field_name = field_.name
+            field_type = field_.type
 
-            # Check if the field corresponds to special forms (e.g., "FOIL" or "DEFECT")
             if field_name.upper() == "FOIL":
-                # Create a custom form for FOIL parameters
                 form = FoilForm()
                 self.tabs.addTab(form, field_name.upper())
 
             elif field_name.upper() == "DEFECT":
-                # Create a custom form for DEFECT parameters
                 form = DefectForm()
                 self.tabs.addTab(form, field_name.upper())
 
             elif is_dataclass(field_type):
-                # If the field type is a nested dataclass, create a generic `DataclassForm`
                 form = DataclassForm(field_type)
-                # Store the form in the `form_widgets` dictionary for later use
                 self.form_widgets[field_name] = form
-                # Add the form to the tabs widget
                 self.tabs.addTab(form, field_name.upper())
 
-        # Add the tabs widget to the main layout
         layout.addWidget(self.tabs)
 
-        # Create a button to generate the program's configuration file
-        self.generate_button = QPushButton("Generate Config")
-        # Connect the button's click event to the `generate_config` method
-        self.generate_button.clicked.connect(self.generate_config)
-        # Add the button to the main layout
+        self.generate_button = QPushButton(generate_label)
+        # Defer the clicked handling to a helper so we can branch on the callback
+        self.generate_button.clicked.connect(self._handle_generate_clicked)
         layout.addWidget(self.generate_button)
 
-        # Set the main layout for the widget
         self.setLayout(layout)
 
-    def generate_config(self):
-        """
-        Generates the configuration file for the program based on the user input.
-
-        This method:
-            1. Collects the updated parameter values from the input forms.
-            2. Instantiates the program with the updated configuration.
-            3. Calls the program's `generate_config` method to create the configuration file.
-        """
+    def generate_config(self) -> None:
+        """Run the default config-generation workflow for the associated program."""
         try:
-            # Retrieve the updated configuration from the input forms
             config = self._get_config()
-            # Instantiate the program class with the updated configuration
             program = self.program_class(config=config)
-            # Generate the configuration file for the program
             program.generate_config()
-        except Exception as e:
-            print(f"[ERROR] Failed to generate config: {e}")  # Log any errors
+        except Exception as exc:  # pragma: no cover - log surface for GUI users
+            print(f"[ERROR] Failed to generate config: {exc}")
 
-    def run_program(self):
-        """
-        Executes the program using the current configuration.
-
-        This method:
-            1. Collects the updated parameter values from the input forms.
-            2. Instantiates the program with the updated configuration.
-            3. Handles input dependencies (e.g., copying output files from other programs).
-            4. Calls the program's `run` method to execute it.
-        """
+    def run_program(self) -> None:
+        """Execute the program using the values captured by the form."""
         try:
-            # Retrieve the updated configuration from the input forms
             config = self._get_config()
-            # Instantiate the program class with the updated configuration
             program = self.program_class(config=config)
 
-            # Handle input dependencies, if applicable
             if program.update_input_name:
-                # If input names need to be updated, copy and rename the output file
                 program.copy_output_file(program.copy_output_from, program.name)
             elif program.copy_output_from:
-                # Otherwise, simply copy the output file from the dependency
                 program.copy_output_file(program.copy_output_from)
 
-            # Execute the program
             program.run()
-        except Exception as e:
-            print(f"[ERROR] Error while running program: {e}")  # Log any errors
+        except Exception as exc:  # pragma: no cover - log surface for GUI users
+            print(f"[ERROR] Error while running program: {exc}")
 
-    def _get_config(self):
-        """
-        Collects the updated configuration data from the input forms.
+    def _get_config(self) -> EMSoftConfig:
+        """Collect an updated configuration instance from the embedded widgets."""
+        updated_config_data: dict[str, object] = {}
 
-        Returns:
-            An instance of the configuration dataclass (`config_class`) with the updated values.
-        """
-        updated_config_data = {}
-
-        # Iterate through the forms stored in `form_widgets`
         for key, form in self.form_widgets.items():
             if isinstance(form, DataclassForm):
-                # If the form is a `DataclassForm`, retrieve the updated instance
-                form: DataclassForm
                 updated_config_data[key] = form.get_instance()
-            else:
-                # Handle other types of forms, if needed (currently ignored)
-                pass
 
-        # Create and return a new instance of the configuration dataclass with the updated values
         return self.config_class(**updated_config_data)
+
+    def _handle_generate_clicked(self) -> None:
+        """Dispatch the generate button click to a custom callback or the default logic."""
+        if callable(self._on_generate):
+            self._on_generate(self)
+            return
+
+        self.generate_config()
+
+    def get_config(self) -> EMSoftConfig:
+        """Expose the computed configuration so external callers can persist it."""
+
+        return self._get_config()
+
+    def load_config(self, config: EMSoftConfig) -> None:
+        """Populate the form controls with values from an existing configuration."""
+
+        for key, form in self.form_widgets.items():
+            if not hasattr(config, key):
+                continue
+
+            value = getattr(config, key)
+            if value is None:
+                continue
+
+            if isinstance(form, DataclassForm):
+                form.set_instance(value)

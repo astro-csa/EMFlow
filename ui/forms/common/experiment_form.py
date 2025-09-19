@@ -2,6 +2,7 @@ from datetime import datetime
 
 from ui.forms.common.program_form import ProgramForm
 from ui.utils.config_context import ConfigContext
+from ui.utils.defaults_manager import load_defaults
 from ui.utils.tasks import SimulationTask
 from PyQt5.QtCore import QThreadPool
 from PyQt5.QtWidgets import QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
@@ -45,6 +46,15 @@ class ExperimentForm(QWidget):
         for step_name, program_class, config in experiment.steps:
             # Create a `ProgramForm` for the program's configuration
             form = ProgramForm(type(config), program_class)
+
+            program_name = getattr(program_class, "name", step_name)
+            user_defaults = load_defaults(
+                experiment.name,
+                program_name,
+                type(config),
+            )
+            if user_defaults:
+                form.load_config(user_defaults)
 
             # Create a group box to encapsulate the step
             group = QGroupBox(step_name)  # Use the step name as the title of the group box

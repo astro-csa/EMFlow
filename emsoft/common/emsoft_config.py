@@ -3,6 +3,7 @@ import json
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
+
 @dataclass
 class EMSoftConfig:
     def save(self, path: Path) -> None:
@@ -15,4 +16,3 @@ class EMSoftConfig:
         with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
         return cls(**data)
-

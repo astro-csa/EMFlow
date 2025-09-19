@@ -1,11 +1,13 @@
 import sys
 
+from ui.dialogs.default_values_dialog import DefaultValuesDialog
 from ui.layout.simulation_selector import SimulationSelector
+from ui.menu_bar import MenuBar
 from ui.utils.config_context import ConfigContext
 from ui.utils.config_manager import get_data_path
 from ui.utils.console_redirector import EmittingStream
 from ui.widgets.console_widget import ConsoleWidget
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QMessageBox, QMainWindow, QVBoxLayout, QWidget
 
 
 class MainWindow(QMainWindow):
@@ -33,6 +35,14 @@ class MainWindow(QMainWindow):
         # Set the window title
         self.setWindowTitle("EMFlow - Configuration Generator")
 
+        # Create the application menu bar
+        self.menu_bar = MenuBar(
+            self,
+            on_modify_defaults=self.modify_default_values,
+            on_restore_defaults=self.restore_original_values,
+        )
+        self.setMenuBar(self.menu_bar)
+
         # Set the data path using the configuration manager
         ConfigContext.set_data_path(get_data_path())
 
@@ -58,3 +68,23 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         central_widget.setLayout(self.main_layout)
         self.setCentralWidget(central_widget)
+
+    def modify_default_values(self):
+        experiment = self.widget.current_experiment()
+        if experiment is None:
+            QMessageBox.warning(
+                self,
+                "No Experiment Selected",
+                "Select an experiment before modifying default values.",
+            )
+            return
+
+        dialog = DefaultValuesDialog(experiment, self)
+        dialog.exec_()
+
+    def restore_original_values(self):
+        QMessageBox.information(
+            self,
+            "Restore Original Values",
+            "This action is not implemented yet.",
+        )
